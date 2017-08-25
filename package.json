@@ -11,8 +11,13 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.9.0",
+    "mobx": "^3.2.2",
+    "mobx-react": "^4.2.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "webpack": "^3.5.5"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-decorators": "^6.24.1"
   }
 }
