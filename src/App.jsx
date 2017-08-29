@@ -1,71 +1,52 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import Field from './Field'
+import CellJsx from './CellJsx';
+import Cell from './Cell.js';
+import Python from './Python';
+
 import {autorun, observable, computed, action} from "mobx"
 import { observer } from 'mobx-react';
 
-class Todo{
+const WIDTH = 10;
+const HEIGHT = 10;
 
-    @observable name = "";
-    @observable duration = 0;
+let python = new Python([new Cell(2, 0)], {
+    validateX: (x) => x,
+    validateY: (y) => y
+});
 
-    constructor(name, duration){
-        this.name = name;
-        this.duration = duration;
+let field = [];
+for (let i = 0; i < HEIGHT; i++) {
+    let row = [];
+    for (let j = 0; j < WIDTH; j++) {
+        row.push(<CellJsx key={ i + "_" + j }/>)
     }
-
-    toString(){
-        return `Todo:[name: ${this.name}, duration: ${this.duration} ]`;
-    }
+    field.push(row);
 }
 
-class TodoList {
-
-    @observable store = [];
-
-    get report(){
-        return this.store.reduce((init, current) => init + "\n" + current.toString());
-    }
-
-    @action
-    add(todo) {
-        this.store.push(todo);
-    }
-
-}
-
-
-let list = new TodoList;
-list.add(new Todo("work", "8h"));
+setInterval(() => {
+    python.tick()
+}, 1000);
 
 @observer
 class App extends React.Component {
     render(){
-        const store = this.props.store;
-        return (
-            <div>
-                <div>
-                    { store.store.map((item) => <TodoView todo={ item } key={item.name}/>)}
-                </div>
-                <button onClick={ this.onNewTodo }>CLIKME</button>
-            </div>
 
+        this.props.python.body.forEach((item) => {
+            console.log(field[item.y][item.x]);
+            let old = field[item.y][item.x];
+            field[item.y][item.x] = <CellJsx {...old.props} active={true}/>;
+        } );
+
+        return (
+            <div className="field">
+                <Field width={WIDTH} height={HEIGHT} activeCells={field}/>
+            </div>
         );
     }
-    onNewTodo = () => {
-        this.props.store.add(new Todo(prompt('Enter a new todo:','coffee plz'), "6H"));
-    }
 }
 
-@observer
-class TodoView extends React.Component {
-    render() {
-        return (<div onDoubleClick={ this.xuyName }>
-                    { this.props.todo.duration }
-                </div>);
-    }
-    xuyName = () => {
-        this.props.todo.duration = this.props.todo.duration + "XUY";
-    }
-}
-ReactDOM.render(<App store={ list } />, document.getElementById('app'));
+
+ReactDOM.render(<App python={ python } />, document.getElementById('app'));
